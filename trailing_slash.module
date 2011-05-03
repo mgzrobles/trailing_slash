@@ -6,6 +6,14 @@
  */
 
 /**
+ * Function to add a trailing slash to the path if there isn't one already.
+ */
+
+function trailing_slash_add(&$path) {
+	$path = preg_replace('/((?:^|\\/)[^\\/\\.]+?)$/isD', '$1/', $path);
+}
+
+/**
  * Implements hook_url_outbound_alter().
  */
 function trailing_slash_url_outbound_alter(&$path, &$options, $original_path) {
@@ -26,8 +34,8 @@ function trailing_slash_url_outbound_alter(&$path, &$options, $original_path) {
 			$options['alias'] = true;
 		}
 		
-		// Add a trailing slash to the path if there isn't one already
-		$path = preg_replace('/((?:^|\\/)[^\\/\\.]+?)$/isD', '$1/', $path);
+		// Add trailing slash
+		trailing_slash_add($path);
 	}
 }
 
@@ -46,4 +54,15 @@ function trailing_slash_form_system_clean_url_settings_alter(&$form, &$form_stat
 
 		'#description' => t('Add a trailing slash to URLs eg. <code>example.com/user/</code>.')
 	);
+}
+
+
+/**
+ * Implements custom_url_rewrite_outbound().
+ * This is for Drupal 6.x support and any Drupal 7.x modules that may use it (eg. GlobalRedirect)
+ */
+
+function custom_url_rewrite_outbound(&$path, $options, $original_path) {
+	// If Clean URLs and Trailing Slashes are enabled and not external, front page, or empty path, add a trailing slash
+	if (!empty($GLOBALS['conf']['clean_url']) && variable_get('trailing_slash', 0) && !$options['external'] && $path != '<front>' && !empty($path)) trailing_slash_add($path);
 }
