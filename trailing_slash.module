@@ -3,6 +3,7 @@
 /**
  * @file
  * Adds checkbox to the Clean URLs settings form and alters outbound URLs.
+ * Disables the Deslash setting GlobalRedirect.
  */
 
 /**
@@ -65,4 +66,19 @@ function trailing_slash_form_system_clean_url_settings_alter(&$form, &$form_stat
 function custom_url_rewrite_outbound(&$path, $options, $original_path) {
 	// If Clean URLs and Trailing Slashes are enabled and not external, front page, or empty path, add a trailing slash
 	if (!empty($GLOBALS['conf']['clean_url']) && variable_get('trailing_slash', 0) && !$options['external'] && $path != '<front>' && !empty($path)) trailing_slash_add($path);
+}
+
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+
+function trailing_slash_form_globalredirect_settings_alter(&$form, &$form_state, $form_id) {
+	if (variable_get('trailing_slash', 0)) {
+		$form['settings']['deslash'] = array_merge($form['settings']['deslash'], array(
+			'#disabled' => TRUE,
+			'#default_value' => 0,
+			'#description' => '<em>This feature cannot be enabled because <a href="/admin/config/search/clean-urls/">trailing slashes are enabled</a>.</em><br />' . $form['settings']['deslash']['#description']
+		));
+	}
 }
