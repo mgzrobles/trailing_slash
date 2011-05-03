@@ -1,0 +1,34 @@
+<?php
+
+/**
+ * @file
+ * Alters outbound URLs by pre-aliasing them then adds a trailing slash
+ * @todo - Add checkbox to Admin > Config > Search and Metadata > Clean URLs form so that trailing slashes can be turned off without disabling the module
+ * @todo - Admin > Help content
+ */
+
+/**
+ * Implements hook_url_outbound_alter().
+ */
+function trailing_slash_url_outbound_alter(&$path, &$options, $original_path) {
+	// If Clean URLs are used and not external, front page, or empty path
+	if (!empty($GLOBALS['conf']['clean_url']) && !$options['external'] && $path != '<front>' && !empty($path)) {
+		// If not already an alias
+		if (!$options['alias']) {
+			// Pre-alias, as the only available hook is before aliasing is done and we need to modify the final URL path
+			// This is a copy of Drupal core code
+		    $language = isset($options['language']) && isset($options['language']->language) ? $options['language']->language : '';
+		    $alias = drupal_get_path_alias($original_path, $language);
+		    if ($alias != $original_path) {
+		    	$path = $alias;
+		    }
+			// End of Drupal core code
+			
+			// Mark that the path is now an alias so the alias code isn't needlessly re-run
+			$options['alias'] = true;
+		}
+		
+		// Add a trailing slash to the path if there isn't one already
+		$path = preg_replace('/((?:^|\\/)[^\\/\\.]+?)$/isD', '$1/', $path);
+	}
+}

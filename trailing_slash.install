@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Trailing Slash module.
+ */
+
+/**
+ * Implements hook_enable().
+ */
+function trailing_slash_enable() {
+	drupal_set_message(t('<em>Trailing Slash</em> module has been enabled.'));
+}
+
+/**
+ * Implements hook_disable().
+ */
+function trailing_slash_disable() {
+	drupal_set_message(t('<em>Trailing Slash</em> module has been disabled.'));
+}
