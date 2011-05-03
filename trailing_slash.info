@@ -1,5 +1,5 @@
 name = Trailing Slash
+description = Adds trailing slashes to all Drupal generated URLs.
 core = 7.x
 files[] = trailing_slash.install
 files[] = trailing_slash.module
-version = "7.x-1.0-Dev"
