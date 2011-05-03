@@ -2,8 +2,7 @@
 
 /**
  * @file
- * Alters outbound URLs by pre-aliasing them then adds a trailing slash.
- * Adds enable/disable checkbox to the Clean URLs settings form.
+ * Adds checkbox to the Clean URLs settings form and alters outbound URLs.
  */
 
 /**
