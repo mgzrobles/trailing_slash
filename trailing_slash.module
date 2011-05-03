@@ -2,26 +2,25 @@
 
 /**
  * @file
- * Alters outbound URLs by pre-aliasing them then adds a trailing slash
- * @todo - Add checkbox to Admin > Config > Search and Metadata > Clean URLs form so that trailing slashes can be turned off without disabling the module
- * @todo - Admin > Help content
+ * Alters outbound URLs by pre-aliasing them then adds a trailing slash.
+ * Adds enable/disable checkbox to the Clean URLs settings form.
  */
 
 /**
  * Implements hook_url_outbound_alter().
  */
 function trailing_slash_url_outbound_alter(&$path, &$options, $original_path) {
-	// If Clean URLs are used and not external, front page, or empty path
-	if (!empty($GLOBALS['conf']['clean_url']) && !$options['external'] && $path != '<front>' && !empty($path)) {
+	// If Clean URLs and Trailing Slashes are enabled and not external, front page, or empty path
+	if (!empty($GLOBALS['conf']['clean_url']) && variable_get('trailing_slash', 0) && !$options['external'] && $path != '<front>' && !empty($path)) {
 		// If not already an alias
 		if (!$options['alias']) {
 			// Pre-alias, as the only available hook is before aliasing is done and we need to modify the final URL path
 			// This is a copy of Drupal core code
-		    $language = isset($options['language']) && isset($options['language']->language) ? $options['language']->language : '';
-		    $alias = drupal_get_path_alias($original_path, $language);
-		    if ($alias != $original_path) {
-		    	$path = $alias;
-		    }
+			$language = isset($options['language']) && isset($options['language']->language) ? $options['language']->language : '';
+			$alias = drupal_get_path_alias($original_path, $language);
+			if ($alias != $original_path) {
+				$path = $alias;
+			}
 			// End of Drupal core code
 			
 			// Mark that the path is now an alias so the alias code isn't needlessly re-run
@@ -31,4 +30,21 @@ function trailing_slash_url_outbound_alter(&$path, &$options, $original_path) {
 		// Add a trailing slash to the path if there isn't one already
 		$path = preg_replace('/((?:^|\\/)[^\\/\\.]+?)$/isD', '$1/', $path);
 	}
+}
+
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+
+function trailing_slash_form_system_clean_url_settings_alter(&$form, &$form_state, $form_id) {
+	// Add checkbox to enable/disable trailing slashes
+	$form['trailing_slash'] = array(
+
+		'#type' => 'checkbox',
+		'#title' => t('Enable trailing slashes'),
+		'#default_value' => variable_get('trailing_slash', 0),
+
+		'#description' => t('Add a trailing slash to URLs eg. <code>example.com/user/</code>.')
+	);
 }
