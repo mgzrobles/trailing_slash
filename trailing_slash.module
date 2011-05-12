@@ -11,33 +11,33 @@
  */
 
 function trailing_slash_add(&$path) {
-	$path = preg_replace('/((?:^|\\/)[^\\/\\.]+?)$/isD', '$1/', $path);
+  $path = preg_replace('/((?:^|\\/)[^\\/\\.]+?)$/isD', '$1/', $path);
 }
 
 /**
  * Implements hook_url_outbound_alter().
  */
 function trailing_slash_url_outbound_alter(&$path, &$options, $original_path) {
-	// If Clean URLs and Trailing Slashes are enabled and not external, front page, or empty path
-	if (!empty($GLOBALS['conf']['clean_url']) && variable_get('trailing_slash', 0) && !$options['external'] && $path != '<front>' && !empty($path)) {
-		// If not already an alias
-		if (!$options['alias']) {
-			// Pre-alias, as the only available hook is before aliasing is done and we need to modify the final URL path
-			// This is a copy of Drupal core code
-			$language = isset($options['language']) && isset($options['language']->language) ? $options['language']->language : '';
-			$alias = drupal_get_path_alias($original_path, $language);
-			if ($alias != $original_path) {
-				$path = $alias;
-			}
-			// End of Drupal core code
-			
-			// Mark that the path is now an alias so the alias code isn't needlessly re-run
-			$options['alias'] = true;
-		}
-		
-		// Add trailing slash
-		trailing_slash_add($path);
-	}
+  // If Clean URLs and Trailing Slashes are enabled and not external, front page, or empty path
+  if (!empty($GLOBALS['conf']['clean_url']) && variable_get('trailing_slash', 0) && !$options['external'] && $path != '<front>' && !empty($path)) {
+    // If not already an alias
+    if (!$options['alias']) {
+      // Pre-alias, as the only available hook is before aliasing is done and we need to modify the final URL path
+      // This is a copy of Drupal core code
+      $language = isset($options['language']) && isset($options['language']->language) ? $options['language']->language : '';
+      $alias = drupal_get_path_alias($original_path, $language);
+      if ($alias != $original_path) {
+        $path = $alias;
+      }
+      // End of Drupal core code
+      
+      // Mark that the path is now an alias so the alias code isn't needlessly re-run
+      $options['alias'] = TRUE;
+    }
+    
+    // Add trailing slash
+    trailing_slash_add($path);
+  }
 }
 
 
@@ -46,15 +46,15 @@ function trailing_slash_url_outbound_alter(&$path, &$options, $original_path) {
  */
 
 function trailing_slash_form_system_clean_url_settings_alter(&$form, &$form_state, $form_id) {
-	// Add checkbox to enable/disable trailing slashes
-	$form['trailing_slash'] = array(
+  // Add checkbox to enable/disable trailing slashes
+  $form['trailing_slash'] = array(
 
-		'#type' => 'checkbox',
-		'#title' => t('Enable trailing slashes'),
-		'#default_value' => variable_get('trailing_slash', 0),
+    '#type' => 'checkbox',
+    '#title' => t('Enable trailing slashes'),
+    '#default_value' => variable_get('trailing_slash', 0),
 
-		'#description' => t('Add a trailing slash to URLs eg. <code>example.com/user/</code>.')
-	);
+    '#description' => t('Add a trailing slash to URLs eg. <code>example.com/user/</code>.')
+  );
 }
 
 
@@ -64,8 +64,10 @@ function trailing_slash_form_system_clean_url_settings_alter(&$form, &$form_stat
  */
 
 function custom_url_rewrite_outbound(&$path, $options, $original_path) {
-	// If Clean URLs and Trailing Slashes are enabled and not external, front page, or empty path, add a trailing slash
-	if (!empty($GLOBALS['conf']['clean_url']) && variable_get('trailing_slash', 0) && !$options['external'] && $path != '<front>' && !empty($path)) trailing_slash_add($path);
+  // If Clean URLs and Trailing Slashes are enabled and not external, front page, or empty path, add a trailing slash
+  if (!empty($GLOBALS['conf']['clean_url']) && variable_get('trailing_slash', 0) && !$options['external'] && $path != '<front>' && !empty($path)) {
+    trailing_slash_add($path);
+  }
 }
 
 
@@ -74,11 +76,11 @@ function custom_url_rewrite_outbound(&$path, $options, $original_path) {
  */
 
 function trailing_slash_form_globalredirect_settings_alter(&$form, &$form_state, $form_id) {
-	if (variable_get('trailing_slash', 0)) {
-		$form['settings']['deslash'] = array_merge($form['settings']['deslash'], array(
-			'#disabled' => TRUE,
-			'#default_value' => 0,
-			'#description' => '<em>This feature cannot be enabled because <a href="/admin/config/search/clean-urls/">trailing slashes are enabled</a>.</em><br />' . $form['settings']['deslash']['#description']
-		));
-	}
+  if (variable_get('trailing_slash', 0)) {
+    $form['settings']['deslash'] = array_merge($form['settings']['deslash'], array(
+      '#disabled' => TRUE,
+      '#default_value' => 0,
+      '#description' => '<em>This feature cannot be enabled because <a href="/admin/config/search/clean-urls/">trailing slashes are enabled</a>.</em><br />' . $form['settings']['deslash']['#description']
+    ));
+  }
 }
