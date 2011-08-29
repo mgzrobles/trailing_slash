@@ -17,29 +17,28 @@ function trailing_slash_add(&$path) {
  * Implements hook_url_outbound_alter().
  */
 function trailing_slash_url_outbound_alter(&$path, &$options, $original_path) {
-  // If Clean URLs and Trailing Slashes are enabled and not external, front page, or
-  // empty path.
+  // If Clean URLs and Trailing Slashes are enabled and not external, front
+  // page, or empty path.
   if (!empty($GLOBALS['conf']['clean_url']) && variable_get('trailing_slash', TRUE) && !$options['external'] && $path != '<front>' && !empty($path)) {
     // If not already an alias
     if (!$options['alias']) {
-      // Pre-alias, as the only available hook is before aliasing is done and we need to
-      // modify the final URL path. This is a copy of Drupal core code.
+      // Pre-alias, as the only available hook is before aliasing is done and we
+      // need to modify the final URL path. This is a copy of Drupal core code.
       $language = isset($options['language']) && isset($options['language']->language) ? $options['language']->language : '';
       $alias = drupal_get_path_alias($original_path, $language);
       if ($alias != $original_path) {
         $path = $alias;
       }
       // This is where the copy of Drupal core code ends.
-      
-      // Mark that the path is now an alias so the alias code isn't needlessly re-run.
+
+      // Mark the path as an alias so the alias code isn't needlessly re-run.
       $options['alias'] = TRUE;
     }
-    
+
     // Add trailing slash.
     trailing_slash_add($path);
   }
 }
-
 
 /**
  * Implements hook_form_FORM_ID_alter().
@@ -54,20 +53,19 @@ function trailing_slash_form_system_clean_url_settings_alter(&$form, &$form_stat
   );
 }
 
-
 /**
  * Implements custom_url_rewrite_outbound().
+ *
  * This is for Drupal 6.x support and any Drupal 7.x modules that may use it
  * (eg. GlobalRedirect).
  */
 function custom_url_rewrite_outbound(&$path, $options, $original_path) {
-  // If Clean URLs and Trailing Slashes are enabled and not external, front page, or
-  // empty path, add a trailing slash.
+  // If Clean URLs and Trailing Slashes are enabled and not external, front
+  // page, or empty path, add a trailing slash.
   if (!empty($GLOBALS['conf']['clean_url']) && variable_get('trailing_slash', TRUE) && !$options['external'] && $path != '<front>' && !empty($path)) {
     trailing_slash_add($path);
   }
 }
-
 
 /**
  * Implements hook_form_FORM_ID_alter().

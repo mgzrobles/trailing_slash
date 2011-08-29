@@ -6,23 +6,8 @@
  */
 
 /**
- * Implements hook_enable().
- */
-function trailing_slash_enable() {
-  drupal_set_message(t('<em>Trailing Slash</em> module has been enabled.'));
-}
-
-/**
- * Implements hook_disable().
- */
-function trailing_slash_disable() {
-  drupal_set_message(t('<em>Trailing Slash</em> module has been disabled.'));
-}
-
-/**
  * Implements hook_uninstall().
  */
 function trailing_slash_uninstall() {
-  drupal_set_message(t('<em>Trailing Slash</em> module has been uninstalled.'));
   variable_del('trailing_slash');
 }
