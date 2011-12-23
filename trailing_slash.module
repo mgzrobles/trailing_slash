@@ -3,7 +3,6 @@
 /**
  * @file
  * Adds checkbox to the Clean URLs settings form and alters outbound URLs.
- * Disables the Deslash setting GlobalRedirect.
  */
 
 /**
@@ -49,7 +48,12 @@ function trailing_slash_form_system_clean_url_settings_alter(&$form, &$form_stat
     '#type' => 'checkbox',
     '#title' => t('Enable trailing slashes'),
     '#default_value' => variable_get('trailing_slash', TRUE),
-    '#description' => t('Add a trailing slash to URLs eg. <code>example.com/user/</code>.')
+    '#description' => t('Add a trailing slash to URLs eg. <code>example.com/user/</code>.'),
+    '#states' => array(
+      'invisible' => array(
+        'input[name="clean_url"]' => array('checked' => FALSE),
+      ),
+    ),
   );
 }
 
@@ -69,13 +73,14 @@ function custom_url_rewrite_outbound(&$path, $options, $original_path) {
 
 /**
  * Implements hook_form_FORM_ID_alter().
+ *
+ * Change GlobalRedirect settings form to allow enforcement of trailing slashes.
  */
 function trailing_slash_form_globalredirect_settings_alter(&$form, &$form_state, $form_id) {
   if (variable_get('trailing_slash', TRUE)) {
     $form['settings']['deslash'] = array_merge($form['settings']['deslash'], array(
-      '#disabled' => TRUE,
-      '#default_value' => 0,
-      '#description' => '<em>' . t('This feature cannot be enabled because !link_explaination.', array('!link_explaination' => l(t('trailing slashes are enabled'), 'admin/config/search/clean-urls'))) . '</em><br />' . $form['settings']['deslash']['#description']
+      '#title' => t('Enforce trailing slash'),
+      '#description' => t('If enabled, this option will enforce the trailing slash in requests. This stops requests such as example.com/node/1/ and example.com/node/1 causing duplicate content. On the other hand, if you require certain requests to not have a trailing slash, this feature can cause problems so may need to be disabled.'),
     ));
   }
 }
