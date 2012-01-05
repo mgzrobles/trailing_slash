@@ -4,6 +4,7 @@ TRAILING SLASH DRUPAL MODULE
 What is it?
 -----------
 Adds trailing slashes to all Drupal generated URLs.
+For example: example.com/user/.
 
 How do I install it?
 --------------------
@@ -45,4 +46,4 @@ None.
 
 Sponsors
 --------
-Development of this module was sponsored by the Australian War Memorial [http://www.awm.gov.au/]
+Development of this module was sponsored by the Australian War Memorial [http://www.awm.gov.au/].
