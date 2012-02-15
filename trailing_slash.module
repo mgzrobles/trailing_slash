@@ -6,7 +6,7 @@
  */
 
 /**
- * Function to add a trailing slash to the path if there isn't one already.
+ * Function to add a trailing slash to a path if there isn't one already.
  */
 function trailing_slash_add(&$path) {
   $path = preg_replace('/((?:^|\\/)[^\\/\\.]+?)$/isD', '$1/', $path);
@@ -37,6 +37,31 @@ function trailing_slash_url_outbound_alter(&$path, &$options, $original_path) {
     // Add trailing slash.
     trailing_slash_add($path);
   }
+}
+
+/**
+ * Implements hook_admin_paths_alter().
+ *
+ * Adds trailing slash versions of admin paths.
+ */
+function trailing_slash_admin_paths_alter(&$paths) {
+  $new_paths = array();
+  foreach ($paths as $path => $enabled) {
+    // Ignore paths that end in a wildcard (*) as these will already
+    // work with trailing slashes.
+    if (!preg_match('/\\*$/isD', $path)) {
+      $new_path = $path;
+      trailing_slash_add($new_path);
+
+      // Only add a new admin path if the trailing slash version is
+      // different.
+      if ($new_path != $path) {
+        $new_paths[$new_path] = $enabled;
+      }
+    }
+  }
+  
+  $paths = array_merge($new_paths, $paths);
 }
 
 /**
