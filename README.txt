@@ -3,7 +3,7 @@ TRAILING SLASH DRUPAL MODULE
 
 What is it?
 -----------
-Adds trailing slashes to all Drupal generated URLs.
+Adds trailing slashes to all Drupal generated clean URLs.
 For example: example.com/user/.
 
 How do I install it?
@@ -17,6 +17,7 @@ Apache mod_rewrite example (in .htaccess):
 
 RewriteEngine On
 RewriteBase /
+RewriteCond %{REQUEST_METHOD} !=post [NC]
 RewriteRule ^(.*(?:^|/)[^/\.]+)$ $1/ [L,R=301]
 
 IIS URL Rewrite example (in web.config):
@@ -27,6 +28,9 @@ IIS URL Rewrite example (in web.config):
 			<rules>
 				<rule name="Redirect to Trailing Slashes" enabled="true" stopProcessing="true">
  					<match url="^(.*(?:^|/)[^/\.]+)$" />
+					<conditions logicalGrouping="MatchAll" trackAllCaptures="false">
+						<add input="{REQUEST_METHOD}" pattern="post" negate="true" />
+					</conditions>
 					<action type="Redirect" url="{R:1}/" />
 				</rule>
 			</rules>
