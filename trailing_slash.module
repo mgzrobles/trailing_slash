@@ -65,6 +65,20 @@ function trailing_slash_admin_paths_alter(&$paths) {
 }
 
 /**
+ * Implements hook_boot().
+ *
+ * Cleanup $_GET['q'] on bootstrap.
+ *
+ * Some modules might not cater for URLs that end in a trailing slash and might
+ * accidentally concatenate two or more slashes together in a URL path. This
+ * replaces any occurences of multiple slashes in $_GET['q'] with only one so
+ * that such URLs are still routed by Drupal properly.
+ */
+function trailing_slash_boot() {
+  $_GET['q'] = preg_replace('/\/{2,}/', '/', $_GET['q']);
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function trailing_slash_form_system_clean_url_settings_alter(&$form, &$form_state, $form_id) {
