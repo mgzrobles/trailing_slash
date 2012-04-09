@@ -37,6 +37,17 @@ function trailing_slash_url_outbound_alter(&$path, &$options, $original_path) {
     // Add trailing slash.
     trailing_slash_add($path);
   }
+
+  // If URL is empty but has a prefix, set the path to the prefix and add a
+  // trailing slash.
+  if (($path == '<front>' || empty($path)) && isset($options['prefix']) && $options['prefix'] != '') {
+    $path = $options['prefix'];
+    $options['prefix'] = '';
+    $options['alias'] = TRUE;
+
+    // Add trailing slash.
+    trailing_slash_add($path);
+  }
 }
 
 /**
