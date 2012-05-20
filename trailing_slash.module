@@ -16,38 +16,53 @@ function trailing_slash_add(&$path) {
  * Implements hook_url_outbound_alter().
  */
 function trailing_slash_url_outbound_alter(&$path, &$options, $original_path) {
-  // If Clean URLs and Trailing Slashes are enabled and not external, front
-  // page, or empty path.
-  if (!empty($GLOBALS['conf']['clean_url']) && variable_get('trailing_slash', TRUE) && !$options['external'] && $path != '<front>' && !empty($path)) {
-    // If not already an alias
-    if (!$options['alias']) {
-      // Pre-alias, as the only available hook is before aliasing is done and we
-      // need to modify the final URL path. This is a copy of Drupal core code.
-      $language = isset($options['language']) && isset($options['language']->language) ? $options['language']->language : '';
-      $alias = drupal_get_path_alias($original_path, $language);
-      if ($alias != $original_path) {
-        $path = $alias;
-      }
-      // This is where the copy of Drupal core code ends.
-
-      // Mark the path as an alias so the alias code isn't needlessly re-run.
-      $options['alias'] = TRUE;
-    }
-
-    // Add trailing slash.
-    trailing_slash_add($path);
+  // If Clean URLs and Trailing Slashes aren't enabled, don't run.
+  if (empty($GLOBALS['conf']['clean_url']) || !variable_get('trailing_slash', TRUE)) {
+    return;
   }
 
-  // If URL is empty but has a prefix, set the path to the prefix and add a
-  // trailing slash.
+  // If URL is empty but has a prefix, set the path to the prefix.
   if (($path == '<front>' || empty($path)) && isset($options['prefix']) && $options['prefix'] != '') {
     $path = $options['prefix'];
     $options['prefix'] = '';
-    $options['alias'] = TRUE;
-
-    // Add trailing slash.
-    trailing_slash_add($path);
   }
+
+  // If the URL is external, the front page, or an empty path, don't run.
+  if ($options['external'] || $path == '<front>' || empty($path)) {
+    return;
+  }
+
+  // If Global Redirect is installed but not being used to enforce trailing
+  // slashes, we need to not add a trailing slash when it checks to see if a
+  // page needs to be redirected.
+  if (module_exists('globalredirect') && ($settings = _globalredirect_get_settings()) && _globalredirect_is_active($settings) && !$settings['deslash']) {
+    // Use backtrace to find out if the globalredirect_init() function called
+    // this function.
+    $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+    if (isset($backtrace[2]) && isset($backtrace[2]['function']) && strtolower($backtrace[2]['function']) == 'globalredirect_init') {
+      return;
+    }
+    unset($backtrace);
+  }
+
+  // Pre-alias if not already an alias. The only available hook is before
+  // aliasing is done, so we need to pre-alias to modify the final URL path.
+  if (!$options['alias']) {
+    // This is a copy of Drupal core code.
+    $language = isset($options['language']) && isset($options['language']->language) ? $options['language']->language : '';
+    $alias = drupal_get_path_alias($original_path, $language);
+    if ($alias != $original_path) {
+      $path = $alias;
+    }
+    // This is where the copy of Drupal core code ends.
+
+    // Mark the path as an alias so the alias code isn't needlessly re-run.
+    $options['alias'] = TRUE;
+  }
+
+  // Add a trailing slash.
+  trailing_slash_add($path);
+
 }
 
 /**
