@@ -1,13 +1,16 @@
 <?php
 
 /**
- * @file
- * Install, update and uninstall functions for the Trailing Slash module.
+ * Implements hook_install().
  */
+function trailing_slash_install() {
+  // To be executed after ServiceProvider.
+  module_set_weight('trailing_slash', 1);
+}
 
 /**
- * Implements hook_uninstall().
+ * Update module weight.
  */
-function trailing_slash_uninstall() {
-  variable_del('trailing_slash');
+function trailing_slash_update_8001() {
+  module_set_weight('trailing_slash', 1);
 }

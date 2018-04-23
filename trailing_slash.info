@@ -1,4 +1,0 @@
-name = Trailing Slash
-description = Adds trailing slashes to all Drupal generated URLs.
-core = 7.x
-configure = admin/config/search/clean-urls
