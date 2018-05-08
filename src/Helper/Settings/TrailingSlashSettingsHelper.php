@@ -30,7 +30,7 @@ class TrailingSlashSettingsHelper {
     if (!$active_routes) {
       $config = \Drupal::config('trailing_slash.settings');
       $list_of_routes = $config->get('list_of_routes');
-      $active_routes = explode("\r\n", $list_of_routes);
+      $active_routes = explode("\n", str_replace("\r\n", "\n", $list_of_routes));
     }
     return $active_routes;
   }
