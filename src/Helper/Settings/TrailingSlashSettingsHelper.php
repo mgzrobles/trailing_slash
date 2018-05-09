@@ -7,16 +7,28 @@ use Drupal\Core\Entity\ContentEntityType;
 class TrailingSlashSettingsHelper {
 
   /**
+   * @return array|mixed|null
+   */
+  public static function isEnabled() {
+    $config = \Drupal::config('trailing_slash.settings');
+    $enabled = $config->get('enabled');
+    return isset($enabled) ? (bool) $enabled : FALSE;
+  }
+
+  /**
    * @return array
    */
   public static function getActiveBundles() {
-    $bundles = [];
-    $config = \Drupal::config('trailing_slash.settings');
-    $enabled_entity_types = unserialize($config->get('enabled_entity_types'));
-    foreach ($enabled_entity_types as $entity_type_key => $entity_type) {
-      $isBundleTrailingSlash = array_filter($entity_type);
-      if (!empty($isBundleTrailingSlash)) {
-        $bundles[$entity_type_key] = $isBundleTrailingSlash;
+    static $bundles;
+    if (!$bundles) {
+      $bundles = [];
+      $config = \Drupal::config('trailing_slash.settings');
+      $enabled_entity_types = unserialize($config->get('enabled_entity_types'));
+      foreach ($enabled_entity_types as $entity_type_key => $entity_type) {
+        $isBundleTrailingSlash = array_filter($entity_type);
+        if (!empty($isBundleTrailingSlash)) {
+          $bundles[$entity_type_key] = $isBundleTrailingSlash;
+        }
       }
     }
     return $bundles;
@@ -25,14 +37,14 @@ class TrailingSlashSettingsHelper {
   /**
    * @return array
    */
-  public static function getActiveRoutes() {
-    static $active_routes;
-    if (!$active_routes) {
+  public static function getActivePaths() {
+    static $active_paths;
+    if (!$active_paths) {
       $config = \Drupal::config('trailing_slash.settings');
-      $list_of_routes = $config->get('list_of_routes');
-      $active_routes = explode("\n", str_replace("\r\n", "\n", $list_of_routes));
+      $paths = $config->get('paths');
+      $active_paths = explode("\n", str_replace("\r\n", "\n", $paths));
     }
-    return $active_routes;
+    return $active_paths;
   }
 
   /**

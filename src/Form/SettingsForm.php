@@ -34,11 +34,17 @@ class SettingsForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('trailing_slash.settings');
 
-    $form['list_of_routes'] = [
+    $form['enabled'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Enabled'),
+      '#default_value' => $config->get('enabled')
+    ];
+
+    $form['paths'] = [
       '#type' => 'textarea',
-      '#title' => $this->t('List of routes'),
-      '#description' => $this->t('Write a path route per line of routes where you want a trailing slash. Paths start with slash.'),
-      '#default_value' => $config->get('list_of_routes'),
+      '#title' => $this->t('List of paths'),
+      '#description' => $this->t("Write per line a path where you want a trailing slash. Paths start with slash. (e.g., '/book')"),
+      '#default_value' => $config->get('paths'),
     ];
 
     $form['enabled_entity_types'] = [
@@ -79,7 +85,8 @@ class SettingsForm extends ConfigFormBase {
     parent::submitForm($form, $form_state);
 
     $this->config('trailing_slash.settings')
-      ->set('list_of_routes', $form_state->getValue('list_of_routes'))
+      ->set('enabled', $form_state->getValue('enabled'))
+      ->set('paths', $form_state->getValue('paths'))
       ->set('enabled_entity_types', serialize($form_state->getValue('enabled_entity_types')))
       ->save();
   }

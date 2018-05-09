@@ -39,13 +39,13 @@ class TrailingSlashOutboundPathProcessor implements OutboundPathProcessorInterfa
   public function isPathWithTrailingSlash($path, &$options = [], Request $request = NULL, BubbleableMetadata $bubbleable_metadata = NULL) {
     $isPathWithTrailingSlash = FALSE;
     if (
-      \Drupal::state()->get('trailing_slash', TRUE)
+      TrailingSlashSettingsHelper::isEnabled()
       && $path != '<front>'
       && !empty($path)
       && !$this->isAdminPath($path)
       &&
        (
-         $this->isRouteWithTrailingSlash($path)
+         $this->isPathInListWithTrailingSlash($path)
          || $this->isBundleWithTrailingSlash($path)
        )
     ) {
@@ -77,9 +77,9 @@ class TrailingSlashOutboundPathProcessor implements OutboundPathProcessorInterfa
    *
    * @return bool
    */
-  public function isRouteWithTrailingSlash($path) {
-    $routes = TrailingSlashSettingsHelper::getActiveRoutes();
-    if (in_array($path, $routes)) {
+  public function isPathInListWithTrailingSlash($path) {
+    $paths = TrailingSlashSettingsHelper::getActivePaths();
+    if (in_array($path, $paths)) {
       return TRUE;
     }
     return FALSE;
