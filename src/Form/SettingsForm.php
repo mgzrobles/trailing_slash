@@ -96,6 +96,4 @@ class SettingsForm extends ConfigFormBase {
       ->save();
   }
 
-
-
 }
