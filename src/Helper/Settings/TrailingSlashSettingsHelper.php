@@ -4,6 +4,11 @@ namespace Drupal\trailing_slash\Helper\Settings;
 
 use Drupal\Core\Entity\ContentEntityType;
 
+/**
+ * Class TrailingSlashSettingsHelper
+ *
+ * @package Drupal\trailing_slash\Helper\Settings
+ */
 class TrailingSlashSettingsHelper {
 
   /**

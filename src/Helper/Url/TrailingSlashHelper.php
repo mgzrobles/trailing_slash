@@ -3,7 +3,7 @@
 namespace Drupal\trailing_slash\Helper\Url;
 
 /**
- * Class TrailingSlashHelper.
+ * Class TrailingSlashHelper
  *
  * @package Drupal\trailing_slash\Helper\Url
  */

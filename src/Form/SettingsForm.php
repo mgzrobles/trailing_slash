@@ -10,6 +10,11 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\trailing_slash\Helper\Settings\TrailingSlashSettingsHelper;
 
+/**
+ * Class SettingsForm
+ *
+ * @package Drupal\trailing_slash\Form
+ */
 class SettingsForm extends ConfigFormBase {
 
   /**
