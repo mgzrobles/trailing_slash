@@ -7,8 +7,6 @@ use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Url;
 use Drupal\trailing_slash\Helper\Settings\TrailingSlashSettingsHelper;
 use Drupal\trailing_slash\Helper\Url\TrailingSlashHelper;
-
-
 use Symfony\Component\HttpFoundation\Request;
 
 /**
