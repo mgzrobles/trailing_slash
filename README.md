@@ -13,7 +13,7 @@ https://www.drupal.org/docs/8/extending-drupal-8/installing-drupal-8-modules
 
 Configuration
 -------------
-1. For configurate the module go to /admin/config/trailing-slash/settings
+1. To configure the module go to /admin/config/trailing-slash/settings
 2. Field:
 
 REQUIREMENTS

@@ -38,7 +38,7 @@ class TrailingSlashOutboundPathProcessor implements OutboundPathProcessorInterfa
     $isPathWithTrailingSlash = FALSE;
     if (
       TrailingSlashSettingsHelper::isEnabled()
-      && $path != '<front>'
+      && $path !== '<front>'
       && !empty($path)
       && !$this->isAdminPath($path)
       &&
@@ -61,7 +61,7 @@ class TrailingSlashOutboundPathProcessor implements OutboundPathProcessorInterfa
     if (strpos($path, '/admin') === 0 || strpos($path, '/devel') === 0) {
       return TRUE;
     }
-    $url = Url::fromUri("internal:" . $path);
+    $url = Url::fromUri('internal:' . $path);
     if ($url->isRouted()) {
       $route_name = $url->getRouteName();
       $route = \Drupal::service('router.route_provider')->getRouteByName($route_name);
@@ -77,10 +77,7 @@ class TrailingSlashOutboundPathProcessor implements OutboundPathProcessorInterfa
    */
   public function isPathInListWithTrailingSlash($path) {
     $paths = TrailingSlashSettingsHelper::getActivePaths();
-    if (in_array($path, $paths)) {
-      return TRUE;
-    }
-    return FALSE;
+    return in_array($path, $paths);
   }
 
   /**
@@ -93,7 +90,7 @@ class TrailingSlashOutboundPathProcessor implements OutboundPathProcessorInterfa
     $contentEntityType = TrailingSlashSettingsHelper::getContentEntityType();
     $contentEntityTypeKeys = array_keys($contentEntityType);
     if (!empty($bundles)) {
-      $url = Url::fromUri("internal:" . $path);
+      $url = Url::fromUri('internal:' . $path);
       try {
         if ($url->isRouted() && $params = $url->getRouteParameters()) {
           $entity_type = key($params);

@@ -12,7 +12,7 @@ use Drupal\Core\Entity\ContentEntityType;
 class TrailingSlashSettingsHelper {
 
   /**
-   * @return array|mixed|null
+   * @return bool
    */
   public static function isEnabled() {
     $config = \Drupal::config('trailing_slash.settings');
