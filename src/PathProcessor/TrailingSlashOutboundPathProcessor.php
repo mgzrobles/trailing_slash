@@ -34,7 +34,7 @@ class TrailingSlashOutboundPathProcessor implements OutboundPathProcessorInterfa
    *
    * @return bool
    */
-  public function isPathWithTrailingSlash($path, &$options = [], Request $request = NULL, BubbleableMetadata $bubbleable_metadata = NULL) {
+  public function isPathWithTrailingSlash($path, array &$options = [], Request $request = NULL, BubbleableMetadata $bubbleable_metadata = NULL) {
     $isPathWithTrailingSlash = FALSE;
     if (
       TrailingSlashSettingsHelper::isEnabled()
