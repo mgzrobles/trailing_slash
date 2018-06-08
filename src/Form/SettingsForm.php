@@ -1,14 +1,12 @@
 <?php
-/**
- * @file
- * Contains Drupal\trailing_slash\Form\SettingsForm.
- */
 
 namespace Drupal\trailing_slash\Form;
 
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\trailing_slash\Helper\Settings\TrailingSlashSettingsHelper;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class SettingsForm
@@ -16,6 +14,35 @@ use Drupal\trailing_slash\Helper\Settings\TrailingSlashSettingsHelper;
  * @package Drupal\trailing_slash\Form
  */
 class SettingsForm extends ConfigFormBase {
+
+  /**
+   * @var EntityTypeBundleInfoInterface
+   */
+  private $entityTypeBundleInfo;
+
+  /**
+   * Constructs a \Drupal\system\ConfigFormBase object.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface|ConfigFactoryInterface $config_factory
+   *   The factory for configuration objects.
+   * @param EntityTypeBundleInfoInterface                                     $entity_type_bundle_info
+   */
+  public function __construct(ConfigFactoryInterface $config_factory, EntityTypeBundleInfoInterface $entity_type_bundle_info) {
+    parent::__construct($config_factory);
+    $this->entityTypeBundleInfo = $entity_type_bundle_info;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('entity_type.bundle.info')
+    );
+  }
+
+
 
   /**
    * {@inheritdoc}
@@ -61,7 +88,7 @@ class SettingsForm extends ConfigFormBase {
     ];
 
     $entities = TrailingSlashSettingsHelper::getContentEntityType();
-    $bundle_info = \Drupal::service('entity_type.bundle.info')->getAllBundleInfo();
+    $bundle_info = $this->entityTypeBundleInfo->getAllBundleInfo();
     $enabled_entity_types = unserialize($config->get('enabled_entity_types'));
     foreach ($entities as $entity_type_id => $entity_type) {
       $entity_type_bundles = $bundle_info[$entity_type_id];

@@ -1,0 +1,12 @@
+trailing_slash.settings:
+  type: config_object
+  mapping:
+    enabled:
+      type: boolean
+      label: 'Enabled'
+    paths:
+      type: boolean
+      label: 'List of paths'
+    enabled_entity_types:
+      type: string
+      label: 'Enabled entity types'
