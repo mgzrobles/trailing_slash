@@ -19,10 +19,16 @@ use Symfony\Component\HttpFoundation\Request;
 class TrailingSlashOutboundPathProcessor implements OutboundPathProcessorInterface {
 
   /**
-   * I use this var to collect which paths I checked before and prevent maximum function nesting level.
+   * Var to collect which paths I'm checking to prevent maximum function nesting level.
    * @var array
    */
-  private $paths = [];
+  private $checkingPaths = [];
+
+  /**
+   * Var to collect which paths I checked before and prevent maximum function nesting level.
+   * @var array
+   */
+  private $checkedPaths = [];
 
   /**
    * @var \Drupal\Core\Routing\AdminContext
@@ -70,9 +76,9 @@ class TrailingSlashOutboundPathProcessor implements OutboundPathProcessorInterfa
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function isPathWithTrailingSlash($path, array &$options = [], Request $request = NULL, BubbleableMetadata $bubbleable_metadata = NULL) {
-    $isPathWithTrailingSlash = FALSE;
-    if (!in_array($path, $this->paths)) {
-      $this->paths[] = $path;
+    $is_path_with_trailing_slash = FALSE;
+    if (!in_array($path, $this->checkingPaths, TRUE)) {
+      $this->checkingPaths[] = $path;
       if (
         TrailingSlashSettingsHelper::isEnabled()
         && $path !== '<front>'
@@ -84,10 +90,14 @@ class TrailingSlashOutboundPathProcessor implements OutboundPathProcessorInterfa
           || $this->isBundleWithTrailingSlash($path)
         )
       ) {
-        $isPathWithTrailingSlash = TRUE;
+        $is_path_with_trailing_slash = TRUE;
       }
+      $this->checkedPaths[$path] = $is_path_with_trailing_slash;
     }
-    return $isPathWithTrailingSlash;
+    if (array_key_exists($path, $this->checkedPaths)) {
+      return $this->checkedPaths[$path];
+    }
+    return FALSE;
   }
 
   /**
@@ -108,6 +118,7 @@ class TrailingSlashOutboundPathProcessor implements OutboundPathProcessorInterfa
     }
     return FALSE;
   }
+
   /**
    * @param $path
    *
@@ -127,9 +138,9 @@ class TrailingSlashOutboundPathProcessor implements OutboundPathProcessorInterfa
    */
   public function isBundleWithTrailingSlash($path) {
     $bundles = TrailingSlashSettingsHelper::getActiveBundles();
-    $contentEntityType = TrailingSlashSettingsHelper::getContentEntityType();
-    $contentEntityTypeKeys = array_keys($contentEntityType);
     if (!empty($bundles)) {
+      $contentEntityType = TrailingSlashSettingsHelper::getContentEntityType();
+      $contentEntityTypeKeys = array_keys($contentEntityType);
       $url = Url::fromUri('internal:' . $path);
       try {
         if ($url->isRouted() && $params = $url->getRouteParameters()) {

@@ -5,7 +5,7 @@ trailing_slash.settings:
       type: boolean
       label: 'Enabled'
     paths:
-      type: boolean
+      type: string
       label: 'List of paths'
     enabled_entity_types:
       type: string
