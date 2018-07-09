@@ -30,9 +30,9 @@ class TrailingSlashSettingsHelper {
       $config = \Drupal::config('trailing_slash.settings');
       $enabled_entity_types = unserialize($config->get('enabled_entity_types'));
       foreach ($enabled_entity_types as $entity_type_key => $entity_type) {
-        $isBundleTrailingSlash = array_filter($entity_type);
-        if (!empty($isBundleTrailingSlash)) {
-          $bundles[$entity_type_key] = $isBundleTrailingSlash;
+        $enabledBundles = array_filter($entity_type);
+        if (!empty($enabledBundles)) {
+          $bundles[$entity_type_key] = $enabledBundles;
         }
       }
     }
