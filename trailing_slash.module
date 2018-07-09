@@ -1,0 +1,3 @@
+<?php
+
+define('TRAILING_SLASH_MINIMUM_PHP', '7.1');
