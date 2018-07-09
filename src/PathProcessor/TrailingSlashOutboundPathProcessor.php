@@ -2,8 +2,10 @@
 
 namespace Drupal\trailing_slash\PathProcessor;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\PathProcessor\OutboundPathProcessorInterface;
 use Drupal\Core\Render\BubbleableMetadata;
+use Drupal\Core\Routing\AdminContext;
 use Drupal\Core\Url;
 use Drupal\trailing_slash\Helper\Settings\TrailingSlashSettingsHelper;
 use Drupal\trailing_slash\Helper\Url\TrailingSlashHelper;
@@ -17,6 +19,37 @@ use Symfony\Component\HttpFoundation\Request;
 class TrailingSlashOutboundPathProcessor implements OutboundPathProcessorInterface {
 
   /**
+   * I use this var to collect which paths I checked before and prevent maximum function nesting level.
+   * @var array
+   */
+  private $paths = [];
+
+  /**
+   * @var \Drupal\Core\Routing\AdminContext
+   */
+  protected $adminContext;
+
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * TrailingSlashOutboundPathProcessor constructor.
+   * @param AdminContext $admin_context
+   * @param EntityTypeManagerInterface $entity_type_manager
+   */
+  public function __construct(
+    AdminContext $admin_context,
+    EntityTypeManagerInterface $entity_type_manager
+  ) {
+    $this->adminContext = $admin_context;
+    $this->entityTypeManager = $entity_type_manager;
+  }
+
+  /**
    * @inheritdoc
    */
   public function processOutbound($path, &$options = [], Request $request = NULL, BubbleableMetadata $bubbleable_metadata = NULL) {
@@ -28,26 +61,31 @@ class TrailingSlashOutboundPathProcessor implements OutboundPathProcessorInterfa
 
   /**
    * @param                    $path
-   * @param array              $options
-   * @param Request            $request
+   * @param array $options
+   * @param Request $request
    * @param BubbleableMetadata $bubbleable_metadata
    *
    * @return bool
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function isPathWithTrailingSlash($path, array &$options = [], Request $request = NULL, BubbleableMetadata $bubbleable_metadata = NULL) {
     $isPathWithTrailingSlash = FALSE;
-    if (
-      TrailingSlashSettingsHelper::isEnabled()
-      && $path !== '<front>'
-      && !empty($path)
-      && !$this->isAdminPath($path)
-      &&
-       (
-         $this->isPathInListWithTrailingSlash($path)
-         || $this->isBundleWithTrailingSlash($path)
-       )
-    ) {
-      return TRUE;
+    if (!in_array($path, $this->paths)) {
+      $this->paths[] = $path;
+      if (
+        TrailingSlashSettingsHelper::isEnabled()
+        && $path !== '<front>'
+        && !empty($path)
+        && !$this->isAdminPath($path)
+        &&
+        (
+          $this->isPathInListWithTrailingSlash($path)
+          || $this->isBundleWithTrailingSlash($path)
+        )
+      ) {
+        $isPathWithTrailingSlash = TRUE;
+      }
     }
     return $isPathWithTrailingSlash;
   }
@@ -64,9 +102,9 @@ class TrailingSlashOutboundPathProcessor implements OutboundPathProcessorInterfa
     $url = Url::fromUri('internal:' . $path);
     if ($url->isRouted()) {
       $route_name = $url->getRouteName();
+      // I can't inject the service because it would involve circular dependence.
       $route = \Drupal::service('router.route_provider')->getRouteByName($route_name);
-      $is_admin = \Drupal::service('router.admin_context')->isAdminRoute($route);
-      return $is_admin;
+      return $this->adminContext->isAdminRoute($route);
     }
     return FALSE;
   }
@@ -84,6 +122,8 @@ class TrailingSlashOutboundPathProcessor implements OutboundPathProcessorInterfa
    * @param $path
    *
    * @return bool
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function isBundleWithTrailingSlash($path) {
     $bundles = TrailingSlashSettingsHelper::getActiveBundles();
@@ -95,7 +135,7 @@ class TrailingSlashOutboundPathProcessor implements OutboundPathProcessorInterfa
         if ($url->isRouted() && $params = $url->getRouteParameters()) {
           $entity_type = key($params);
           if (in_array($entity_type, $contentEntityTypeKeys)) {
-            $entity = \Drupal::entityTypeManager()->getStorage($entity_type)->load($params[$entity_type]);
+            $entity = $this->entityTypeManager->getStorage($entity_type)->load($params[$entity_type]);
             $bundle = $entity->bundle();
             if (isset($bundles[$entity_type][$bundle])) {
               return TRUE;

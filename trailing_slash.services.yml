@@ -4,3 +4,6 @@ services:
     # It must be executed as the last PathProcessor
     tags:
       - { name: path_processor_outbound, priority: -1}
+    arguments:
+      - '@router.admin_context'
+      - '@entity_type.manager'
