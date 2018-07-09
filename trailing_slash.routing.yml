@@ -5,5 +5,3 @@ trailing_slash.admin_settings_form:
     _title: 'Trailing Slash settings'
   requirements:
     _permission: 'access administration pages'
-  options:
-    _admin_route: TRUE
