@@ -10,6 +10,7 @@ use Drupal\Core\Url;
 use Drupal\trailing_slash\Helper\Settings\TrailingSlashSettingsHelper;
 use Drupal\trailing_slash\Helper\Url\TrailingSlashHelper;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Route;
 
 /**
  * Class TrailingSlashOutboundPathProcessor.
@@ -83,11 +84,11 @@ class TrailingSlashOutboundPathProcessor implements OutboundPathProcessorInterfa
         TrailingSlashSettingsHelper::isEnabled()
         && $path !== '<front>'
         && !empty($path)
-        && !$this->isAdminPath($path)
+        && !$this->isAdminPath($path, $options)
         &&
         (
           $this->isPathInListWithTrailingSlash($path)
-          || $this->isBundleWithTrailingSlash($path)
+          || $this->isBundlePathWithTrailingSlash($path)
         )
       ) {
         $is_path_with_trailing_slash = TRUE;
@@ -102,19 +103,15 @@ class TrailingSlashOutboundPathProcessor implements OutboundPathProcessorInterfa
 
   /**
    * @param $path
-   *
+   * @param $options
    * @return bool
    */
-  public function isAdminPath($path) {
+  public function isAdminPath($path, $options): bool {
     if (strpos($path, '/admin') === 0 || strpos($path, '/devel') === 0) {
       return TRUE;
     }
-    $url = Url::fromUri('internal:' . $path);
-    if ($url->isRouted()) {
-      $route_name = $url->getRouteName();
-      // I can't inject the service because it would involve circular dependence.
-      $route = \Drupal::service('router.route_provider')->getRouteByName($route_name);
-      return $this->adminContext->isAdminRoute($route);
+    if (!empty($options['route'])) {
+      return $this->adminContext->isAdminRoute($options['route']);
     }
     return FALSE;
   }
@@ -124,7 +121,7 @@ class TrailingSlashOutboundPathProcessor implements OutboundPathProcessorInterfa
    *
    * @return bool
    */
-  public function isPathInListWithTrailingSlash($path) {
+  public function isPathInListWithTrailingSlash($path): bool {
     $paths = TrailingSlashSettingsHelper::getActivePaths();
     return in_array($path, $paths);
   }
@@ -136,19 +133,17 @@ class TrailingSlashOutboundPathProcessor implements OutboundPathProcessorInterfa
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function isBundleWithTrailingSlash($path) {
-    $bundles = TrailingSlashSettingsHelper::getActiveBundles();
-    if (!empty($bundles)) {
-      $contentEntityType = TrailingSlashSettingsHelper::getContentEntityType();
-      $contentEntityTypeKeys = array_keys($contentEntityType);
+  public function isBundlePathWithTrailingSlash($path) {
+    $active_bundles = TrailingSlashSettingsHelper::getActiveBundles();
+    if (!empty($active_bundles)) {
       $url = Url::fromUri('internal:' . $path);
       try {
         if ($url->isRouted() && $params = $url->getRouteParameters()) {
           $entity_type = key($params);
-          if (in_array($entity_type, $contentEntityTypeKeys)) {
+          if (array_key_exists($entity_type, $active_bundles)) {
             $entity = $this->entityTypeManager->getStorage($entity_type)->load($params[$entity_type]);
             $bundle = $entity->bundle();
-            if (isset($bundles[$entity_type][$bundle])) {
+            if (isset($active_bundles[$entity_type][$bundle])) {
               return TRUE;
             }
           }

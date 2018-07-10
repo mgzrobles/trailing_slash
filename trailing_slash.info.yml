@@ -1,7 +1,6 @@
 name: Trailing Slash
 description: Adds trailing slashes to Drupal URLs.
 type: module
-version: '8.x-1.x'
 core: 8.x
 dependencies:
   - drupal:language

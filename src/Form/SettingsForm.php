@@ -88,10 +88,10 @@ class SettingsForm extends ConfigFormBase {
       '#tree' => TRUE,
     ];
 
-    $entities = TrailingSlashSettingsHelper::getContentEntityType();
+    $entity_types = TrailingSlashSettingsHelper::getContentEntityTypes();
     $bundle_info = $this->entityTypeBundleInfo->getAllBundleInfo();
     $enabled_entity_types = unserialize($config->get('enabled_entity_types'));
-    foreach ($entities as $entity_type_id => $entity_type) {
+    foreach ($entity_types as $entity_type_id => $entity_type) {
       $entity_type_bundles = $bundle_info[$entity_type_id];
       $form['enabled_entity_types'][$entity_type_id] = [
         '#type' => 'details',

@@ -14,25 +14,28 @@ class TrailingSlashSettingsHelper {
   /**
    * @return bool
    */
-  public static function isEnabled() {
-    $config = \Drupal::config('trailing_slash.settings');
-    $enabled = $config->get('enabled');
-    return isset($enabled) ? (bool) $enabled : FALSE;
+  public static function isEnabled(): bool {
+    static $enabled;
+    if (!isset($is_enabled)) {
+      $config = \Drupal::config('trailing_slash.settings');
+      $enabled = $config->get('enabled');
+    }
+    return $enabled;
   }
 
   /**
    * @return array
    */
-  public static function getActiveBundles() {
+  public static function getActiveBundles(): array {
     static $bundles;
-    if (!$bundles) {
+    if (!isset($bundles)) {
       $bundles = [];
       $config = \Drupal::config('trailing_slash.settings');
       $enabled_entity_types = unserialize($config->get('enabled_entity_types'));
       foreach ($enabled_entity_types as $entity_type_key => $entity_type) {
-        $enabledBundles = array_filter($entity_type);
-        if (!empty($enabledBundles)) {
-          $bundles[$entity_type_key] = $enabledBundles;
+        $enabled_bundles = array_filter($entity_type);
+        if (!empty($enabled_bundles)) {
+          $bundles[$entity_type_key] = $enabled_bundles;
         }
       }
     }
@@ -44,7 +47,7 @@ class TrailingSlashSettingsHelper {
    */
   public static function getActivePaths() {
     static $active_paths;
-    if (!$active_paths) {
+    if (!isset($active_paths)) {
       $config = \Drupal::config('trailing_slash.settings');
       $paths = $config->get('paths');
       $active_paths = explode("\n", str_replace("\r\n", "\n", $paths));
@@ -53,19 +56,20 @@ class TrailingSlashSettingsHelper {
   }
 
   /**
-   * @return array
+   * @return \Drupal\Core\Entity\ContentEntityTypeInterface[]
    */
-  public static function getContentEntityType() {
-    static $contentEntityType;
-    if (!$contentEntityType) {
+  public static function getContentEntityTypes(): array {
+    static $content_entity_type;
+    if (!isset($content_entity_type)) {
       $entities = \Drupal::entityTypeManager()->getDefinitions();
-      $contentEntityType = [];
+      $content_entity_type = [];
       foreach ($entities as $entity_type_id => $entity_type) {
         if ($entity_type instanceof ContentEntityType) {
-          $contentEntityType[$entity_type_id] = $entity_type;
+          $content_entity_type[$entity_type_id] = $entity_type;
         }
       }
     }
-    return $contentEntityType;
+    return $content_entity_type;
   }
+
 }

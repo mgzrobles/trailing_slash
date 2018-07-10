@@ -28,10 +28,3 @@ function trailing_slash_requirements($phase) {
   }
   return $requirements;
 }
-
-/**
- * Update module weight.
- */
-function trailing_slash_update_8001() {
-  module_set_weight('trailing_slash', 1);
-}
