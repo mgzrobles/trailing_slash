@@ -6,7 +6,7 @@ trailing_slash.settings:
       label: 'Enabled'
     paths:
       type: string
-      label: 'List of paths'
+      label: 'List of paths with trailing slash'
     enabled_entity_types:
       type: string
       label: 'Enabled entity types'
