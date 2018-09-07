@@ -75,8 +75,8 @@ class SettingsForm extends ConfigFormBase {
 
     $form['paths'] = [
       '#type' => 'textarea',
-      '#title' => $this->t('List of paths'),
-      '#description' => $this->t("Write per line a path where you want a trailing slash. Paths start with slash. (e.g., '/book')"),
+      '#title' => $this->t('List of paths with trailing slash'),
+      '#description' => $this->t("Write a path per line where you want a trailing slash. Paths start with slash. (e.g., '/book')"),
       '#default_value' => $config->get('paths'),
     ];
 
